@@ -6,6 +6,7 @@ sapply(src_files, function(x) source(x))
 #Shiny-related
 library(shiny)
 library(dashboardthemes)
+library(shinythemes)
 library(shinydashboard)
 library(DT)
 #GIS
@@ -22,7 +23,7 @@ library(geosphere)
 #Plotting
 library(ggplot2)
 library(ggrepel)
-# library(plotly)
+library(plotly)
 #Misc
 library(tidyr)
 library(stringr)
@@ -40,14 +41,9 @@ transform_data <- function(x){
 
 ## Set page variables
 p4s_ll <- CRS("+proj=longlat")
-counties <- rgdal::readOGR("raw_data/shape/counties.shp")
-proj4string(counties) <- p4s_ll
 d <- readRDS("county_data.rds")
-# d$Median_HH_Inc <- transform_data(d$Median_HH_Inc)
-# d$total_population <- transform_data(d$total_population)
-# d$CLIM_PC1 <- transform_data(d$CLIM_PC1)
-# d$CLIM_PC2 <- transform_data(d$CLIM_PC2)
-# d$CLIM_PC3 <- transform_data(d$CLIM_PC3)
+counties <- as(d, "Spatial")
+proj4string(counties) <- p4s_ll
 centroids <-
   sapply(d$geometry, function(x)
     colMeans(x[[1]][[1]])) %>% t %>% data.frame()
@@ -70,8 +66,8 @@ menuOpts$county <-
   str_replace_all(pattern = "_", replacement = " ") %>%
   str_to_title()
 slider_width <- "85%"
-label_county = HTML('<p style="color:white;margin-left:45px">County</p>')
-label_state = HTML('<p style="color:white;margin-left:45px">State</p>')
+label_county = HTML('<p style="color:black;margin-left:45px">County</p>')
+label_state = HTML('<p style="color:black;margin-left:45px">State</p>')
 
 
 ## Create Python virtual environment
@@ -83,127 +79,39 @@ reticulate::source_python("Python/city_coords.py")
 
 ## Create sidebar for app
 sidebar <- dashboardSidebar(
-  disable = FALSE,
-  width = 300,
-  # App title  w/ company logo in top right corner----
-  # titlePanel(div(
-  #   img(src = "index.jpg", height = 96.33), style = ""
-  # )),
-  #Text box input to define Domains for comparison
-  h4(
-    HTML(
-      '<p style="color:white;margin-left:35px">Enter the name of a city...</p>'
-    ),
-    .noWS = "outside"
-  ),
-  # h5(
-  #   HTML(
-  #     "<b style='color:white;margin-left:70px'>Enter a location...</b>"
-  #   ),
-  # ),
-  splitLayout(
-    div(style="text-align:center;"),
-    cellWidths = c("0%","65%", "20%"),
-    textInput(
-      "city",
-      label = "",
-      placeholder = "San Francisco, CA",
-      value = "",
-      width = "100%"
-    ),
-    # tags$style(type = "text/css", "#city {text-align:center}"),
-    actionButton("search",
-                 label = "",
-                 width = "100%",
-                 icon=icon("binoculars")
-  ), 
-  tags$style(type = "text/css", "#search {display: inline-block;text-align: center;margin-top:55%;margin-right:30%}")),
-  h4(
-    HTML(
-      '<p style="color:white;margin-left:35px">...Or find a location with the menu...</p>'
-    ),
-    .noWS = "outside"
-  ),
-  splitLayout(
-    tags$head(tags$style(
-      HTML("
-                 .shiny-split-layout > div {
-                 overflow: visible;
-                 }
-                 ")
-    )),
-    cellWidths = c("0%", "50%", "50%"),
-    selectInput(
-      #selectize = TRUE,
-      "state",
-      label = label_state,
-      selected = NULL,
-      choices = unique(menuOpts$state)
-    ),
-    selectInput(
-      #selectize = TRUE,
-      "county",
-      label = label_county,
-      selected = NULL,
-      choices = ""
-    )
-  ),
-  splitLayout(
-    tags$head(tags$style(
-      HTML("
-                 .shiny-split-layout > div {
-                 overflow: visible;
-                 }
-                 ")
-    )),
-    cellWidths = c("0%", "65%", "30%"),
-    checkboxInput(
-      inputId = "out_of_state",
-      label = HTML(
-        "<p style='color:white;margin-left:5px'>Out show results from different states?</p>"
-      )
-    ),
-    # tags$style(type = "text/css", "#out_of_state {margin-left:10px}"),
-    numericInput(
-      inputId = "n_labels",
-      label = HTML(
-        "<b style='color:white;margin-left:5px'>Labels</b>"
-      ),
-      min = 5,
-      max = 30,
-      step = 1,
-      value = 10
-    )
-  ), 
-  actionButton("find",
-               label = HTML("<b>Find Your Niche</b>"),
-               width = "50%"),
-  tags$style(type = "text/css", "#find {text-align:center; margin-left:25%}")
-  )
-  #br(),
+    disable = TRUE,
+  width = 300
+)
 
 ## Create body of dashboard page
 body <- dashboardBody(
   #changing theme
-  shinyDashboardThemes(theme = "journal"),
-  style = "height:100%;margin-left:5%;margin-right:5%;margin-top:0%",
+  style = "height:100%;margin-left:10%;margin-right:10%;margin-top:0%",
   fluidPage(
+    theme = shinytheme("flatly"),
+    fluidRow(column(12, align="center",
+                    h1(HTML("<u>Niche: An Interface for Exploring Moving Options</u>")),
+                    br(),
+                    h4("Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers the factors most important to you when making its recommendations. You may be surprised when you find out where that a perfect destination awaits.")
+                    )
+             ),
+    br(),
     fluidRow(
-    column(3,
+    column(3, align="left",
            h4(
              HTML(
-               "<b style='color:black;margin-left:30px'>Answer below on a scale of 1-5</b>"
+               "<p style='color:black;margin-left:30px'>Answer below on a scale of 1-5</p>"
              )
            ),
            h5(
              HTML(
-               "<p style='color:black;margin-left:10px'>1 - not important, 3 - neutral, 5 - very important</p>"
+               "<p style='color:black;margin-left:10px'>(1 - not important, 3 - neutral, 5 - very important)</p>"
              )
            ),
            sliderInput(
              inputId = "feat_im_climate",
              label = HTML(
-               "<b style='color:black;margin-left:35px'>How important is the climate?</b>"
+               "<p style='color:black;margin-left:35px'>How important is the climate?</p>"
              ),
              step = 1,
              min = 1,
@@ -234,7 +142,7 @@ body <- dashboardBody(
            sliderInput(
              inputId = "feat_im_political",
              label = HTML(
-               "<b style='color:black;margin-left:40px'>A similar political atmosphere?</b>"
+               "<p style='color:black;margin-left:40px'>A similar political atmosphere?</p>"
              ),
              min = 1,
              max = 5,
@@ -244,7 +152,7 @@ body <- dashboardBody(
            sliderInput(
              inputId = "feat_im_pa",
              label = HTML(
-               "<b style='color:black;margin-left:35px'>Public lands and recreation?</b>"
+               "<p style='color:black;margin-left:35px'>Public lands and recreation?</p>"
              ),
              min = 1,
              max = 5,
@@ -252,15 +160,107 @@ body <- dashboardBody(
              width = slider_width
            )
     ),
+    column(3, align="left",
+           h4(
+             HTML(
+               '<p style="color:black;margin-left:35px">Enter the name of a city...</p>'
+             ),
+             .noWS = "outside"
+           ),
+           splitLayout(
+             div(style="text-align:center;"),
+             cellWidths = c("0%","65%","0%", "20%"),
+             textInput(
+               "city",
+               label = "",
+               placeholder = "San Francisco, CA",
+               value = "",
+               width = "100%"
+             ),
+             tags$style(type = "text/css", "#city {text-align:center}"),
+             actionButton("search",
+                          label = "",
+                          width = "100%",
+                          icon=icon("binoculars")
+             ),
+             tags$style(type = "text/css", "#search {display: inline-block;text-align: center;margin-top:27%;margin-right:30%}")),
+           br(),
+           br(),
+           h4(
+             HTML(
+               '<p style="color:black;margin-left:35px">...Or find a location with the menu...</p>'
+             ),
+             .noWS = "outside"
+           ),
+           br(),
+           br(),
+           splitLayout(
+             tags$head(tags$style(
+               HTML("
+                 .shiny-split-layout > div {
+                 overflow: visible;
+                 }
+                 ")
+             )),
+             cellWidths = c("0%", "50%", "50%"),
+             selectInput(
+               #selectize = TRUE,
+               "state",
+               label = label_state,
+               selected = NULL,
+               choices = unique(menuOpts$state)
+             ),
+             selectInput(
+               #selectize = TRUE,
+               "county",
+               label = label_county,
+               selected = NULL,
+               choices = ""
+             )
+           ),
+           br(),
+           splitLayout(
+             tags$head(tags$style(
+               HTML("
+                 .shiny-split-layout > div {
+                 overflow: visible;
+                 }
+                 ")
+             )),
+             cellWidths = c("0%", "80%", "20%"),
+             checkboxInput(
+               inputId = "out_of_state",
+               label = HTML(
+                 "<p style='color:black;margin-left:0px'>Only list locations in other states?</p>"
+               )
+             ),
+             # tags$style(type = "text/css", "#out_of_state {margin-left:10px}"),
+             numericInput(
+               inputId = "n_labels",
+               label = HTML(
+                 "<b style='color:black;margin-left:5px'>Labels</b>"
+               ),
+               min = 5,
+               max = 30,
+               step = 1,
+               value = 10
+             )
+           ),
+           br(),
+           actionButton("find",
+                        label = HTML("<b>Find Your Niche</b>"),
+                        width = "50%"),
+           tags$style(type = "text/css", "#find {text-align:center; margin-left:25%}")
+    ),
     br(),
     column(
-      9,
+      6,
       align = "center",
       fluidRow(tags$head(
         tags$style(".shiny-output-error{color:blue; font-size: 17px}")
       )),
-      fluidRow(),
-      fluidRow(plotOutput("map", height = "550px"))
+      h4(HTML("<p>Counties with scores closer to 1 are more similar to the target location.</p>")),
+      fluidRow(plotlyOutput("map", height = "550px"))
     )),
     br(),
     br(),
@@ -271,12 +271,11 @@ body <- dashboardBody(
       fluidRow(tags$head(
         tags$style(".shiny-output-error{color:blue; font-size: 17px}")
       )),
-      fluidRow(),
       fluidRow(
-        # style = "height:1000px",
-        dataTableOutput("focal_table", width="98%"),
+        h4(HTML("<p>Click on the links under 'Find_homes' and 'Location' to search the area on Zillow and Google.</p>")),
+        dataTableOutput("focal_table", width="100%"),
          br(),
-        dataTableOutput("table", width="98%")
+        dataTableOutput("table", width="100%")
       )
     )
   )
@@ -360,27 +359,20 @@ server = function(input, output, session) {
       economic_vars,
       political_vars,
       landscape_vars
-      #paste0("PCT_PA_AREA_", c("Ib", "II", "III", "IV", "V")),
-      #"TOT_PA_AREA"
     )
     weights = c(rep((input$feat_im_climate - 1) / 2, 3),
                 rep((input$feat_im_soc - 1) / 2, length(social_vars)),
                 rep((input$feat_im_econ - 1) / 2, length(economic_vars)),
                 rep((input$feat_im_pol - 1) / 2, length(political_vars)),
                 rep(1, length(landscape_vars))
-                )#,
-                #rep((input$feat_im_pa - 1) / 4, 1))#5))
+                )
     
     vals <- d[, features]
     vals$geometry <- NULL
     vals <- vals * weights
     vals <- apply(vals,2,transform_data)
-    # vals = apply(vals, 2, function(x) 
-    #   2 * ((x - min(x, na.rm=TRUE)) / (max(x, na.rm=TRUE) - min(x, na.rm=TRUE))) - 1) #[-1, 1] tra
     vals_t <- t(vals)
     attr(vals_t, "dimnames") <- NULL
-    #vals_t = apply(vals_t, 2, function(x) 2 * ((x - min(x, na.rm=TRUE)) / (max(x, na.rm=TRUE) - min(x, na.rm=TRUE))) - 1) #[-1, 1] transform
-
     #Cosine similarity
     focal_index <-
       which(d$name == focal_location) #index of focal location
@@ -391,7 +383,7 @@ server = function(input, output, session) {
     
     state_df <- map_data("state")
     d$Score <- ((Score + 1) / 2) %>% round(2)
-    title. = sprintf("Similarity to %s, %s", input_county, input_state) #plot title
+    title. = sprintf("Similarity to %s, %s", str_to_title(input_county), str_to_title(input_state)) #plot title
     d$label = paste(d$county, d$state, sep = ", ") %>%
       str_replace_all(pattern = "_", replacement = " ") %>%
       str_to_title() #location labels (County, State)
@@ -409,7 +401,14 @@ server = function(input, output, session) {
     else{
       dlabel <- d[1:input$n_labels, ]
     }
-    p <- ggplot() +
+    
+    
+    progress$set(message = 'Converting map to Plotly object...',
+                 detail = 'This may take several moments.')
+    progress$set(value = 2)
+    
+    
+    p <- ggplot(d) +
       ggtitle(title., subtitle = "Scores close to 1 are most similar") +
       theme_void() +
       theme(
@@ -423,8 +422,8 @@ server = function(input, output, session) {
         panel.background = element_rect(fill = "gray99"),
         legend.position = c(0.2, 0.15),
         legend.direction = "horizontal",
-        legend.key.height = unit(0.5, "cm"),
-        legend.key.width = unit(1.5, "cm"),
+        legend.key.height = unit(1.5, "cm"),
+        legend.key.width = unit(0.5, "cm"),
         legend.title = element_text(
           face = "bold",
           size = 14.5,
@@ -432,8 +431,10 @@ server = function(input, output, session) {
         ),
         legend.text = element_text(size = 13)
       ) +
+      geom_point(
+        mapping=aes(x=long, y=lat, text=label, label=Score)
+      ) +
       geom_sf(
-        data = d,
         show.legend = TRUE,
         mapping = aes(fill = Score),
         color = "black",
@@ -444,14 +445,9 @@ server = function(input, output, session) {
         show.legend = TRUE,
         mapping = aes(x=long, y=lat, group=group),
         color = "white",
-        size = 0.5
+        size = 0.2
       ) +
-      geom_label_repel(
-        data = dlabel,
-        inherit.aes = FALSE,
-        mapping = aes(x = long, y = lat, label = label)
-      ) +
-      # guides(fill = guide_colorbar()) +
+      guides(fill = guide_colorbar()) +
       scale_fill_viridis_c(
         "Score",
         direction = 1,
@@ -460,18 +456,11 @@ server = function(input, output, session) {
         limits = c(0, 1)
       )
     
-    progress$set(message = 'Converting map to Plotly object...',
-                 detail = 'This may take several moments.')
-    
-    progress$set(value = 2)
-    
-    # p <- ggplotly(p) %>%
-    #   partial_bundle()
-    
-    
+      p2 <- ggplotly(p, tooltip = c("text","label"))
+
     progress$set(value = 3)
     
-    return(p)
+    return(p2)
     
   })
   
@@ -481,16 +470,25 @@ server = function(input, output, session) {
       dx <- dx %>%
         filter(State != input$state)
     }
-    d_out = dx[order(dx$Score, decreasing = TRUE), ]
-    zillowQuery <- sprintf("%s-county,-%s", tolower(d_out$County), tolower(d_out$State))
-    url <- sprintf("https://www.zillow.com/homes/%s_rb/",zillowQuery)
+    d_out = dx[order(dx$Score, decreasing = TRUE),]
+    zillowQuery <-
+      sprintf("%s-county,-%s",
+              tolower(d_out$County),
+              tolower(d_out$State))
+    url <-
+      sprintf("https://www.zillow.com/homes/%s_rb/", zillowQuery)
     Find_homes <- sprintf("<a href='%s'>Find homes</a>", url)
-    googleQuery = sprintf("%s+county%s+%s",input$county,"%2C", input$state) %>%
+    googleQuery = sprintf("%s+county%s+%s", d_out$County, "%2C", d_out$State) %>%
       str_replace_all(pattern = "_", replacement = "+") %>%
       tolower()
-    google_url <- sprintf("https://google.com/search?q=%s",googleQuery)
-    d_out$County <- sprintf("<a href='%s'>%s</a>", google_url, d_out$County)
-    d_out <- cbind(Find_homes, d_out)
+    google_url <-
+      sprintf("https://google.com/search?q=%s", googleQuery)
+    Location <-
+      sprintf("<a href='%s'>%s, %s</a>", google_url, d_out$County, d_out$State)
+    d_out <- cbind(Find_homes,Location, d_out) %>% 
+      select(., -c(County,State)) %>%
+      mutate(Population = formatC(Population, big.mark = ",", format = "d")) %>%
+      mutate(Median_Income = paste0("$",formatC(Median_Income, big.mark = ",", digits = 2, format="f")))
     return(d_out)
   })
   
@@ -499,12 +497,32 @@ server = function(input, output, session) {
       str_replace_all(" ", "_") %>%
       tolower()
     dx = readRDS("new_table.rds")
-    d_out = dx %>% filter(State == input$state) %>% filter(County == input$county)
+    d_out = dx %>% 
+      filter(State == input$state) %>%
+      filter(County == input$county)
     d_out$Score = 0.00
+    zillowQuery <-
+      sprintf("%s-county,-%s",
+              tolower(d_out$County),
+              tolower(d_out$State))
+    url <-
+      sprintf("https://www.zillow.com/homes/%s_rb/", zillowQuery)
+    Find_homes <- sprintf("<a href='%s'>Find homes</a>", url)
+    googleQuery = sprintf("%s+county%s+%s", d_out$County, "%2C", d_out$State) %>%
+      str_replace_all(pattern = "_", replacement = "+") %>%
+      tolower()
+    google_url <-
+      sprintf("https://google.com/search?q=%s", googleQuery)
+    Location <-
+      sprintf("<a href='%s'>%s, %s</a>", google_url, d_out$County, d_out$State)
+    d_out <- cbind(Find_homes,Location, d_out) %>% 
+      select(., -c(County,State)) %>%
+      mutate(Population = formatC(Population, big.mark = ",", format = "d")) %>%
+      mutate(Median_Income = paste0("$",formatC(Median_Income, big.mark = ",", digits = 2, format="f")))
     return(d_out)
   })
   
-  output$map <- renderPlot(map())
+  output$map <- renderPlotly(map())
   output$table <- DT::renderDataTable({
     table()
   }, rownames = FALSE, escape = FALSE, options = list(
