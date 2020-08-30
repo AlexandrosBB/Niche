@@ -7,3 +7,4 @@ README.md
 new_table.rds
 land_use_by_county.rds
 land_use
+*.gz
