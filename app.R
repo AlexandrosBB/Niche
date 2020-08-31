@@ -85,7 +85,7 @@ sidebar <- dashboardSidebar(disable = TRUE,
 ## Create body of dashboard page
 body <- dashboardBody(
   #changing theme
-  style = "height:100%;margin-left:10%;margin-right:10%;margin-top:0%",
+  style = "height:100%;margin-left:10%;margin-right:5%;margin-top:0%",
   fluidPage(
     theme = shinytheme("flatly"),
     fluidRow(column(
@@ -96,7 +96,9 @@ body <- dashboardBody(
       ),
       br(),
       h4(
-        "Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers the factors most important to you when making its recommendations. You may be surprised when you find out where that a perfect destination awaits."
+        HTML(
+        "Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers how important each of these variables are to you when making its recommendations. Try it out! You may be surprised where you are able to find a perfect new home."
+        )
       )
     )),
     br(),
@@ -104,12 +106,12 @@ body <- dashboardBody(
       column(
         3,
         align = "center",
-        h4(
+        h5(
           HTML(
-            "<p style='color:black;margin-left:0px;text-align:center'>First, answer some questions about what how important the following are to you about the place you live.</p>"
+            "<p style='color:black;margin-left:0px;text-align:center'>Start by answering some questions about what how important each of the following are to you about the place you live.</p>"
           )
         ),
-        h5(
+        h6(
           HTML(
             "<p style='color:black;margin-left:0px;text-align:center'>(1 - not important, 3 - neutral, 5 - very important)</p>"
           )
@@ -169,19 +171,26 @@ body <- dashboardBody(
       column(
         3,
         align = "left",
-        h4(
+        h5(
           HTML(
-            '<p style="color:black;margin-left:35px">Then, enter the name of your city to find your state and county...</p>'
+            '<p style="color:black;margin-left:35px">Niche makes recommendations by comparing your county to others throughout the country.</p>'
+          ),
+          .noWS = "outside"
+        ),
+        align = "left",
+        h5(
+          HTML(
+            '<p style="color:black;margin-left:35px">Enter the name of your town or city...</p>'
           ),
           .noWS = "outside"
         ),
         splitLayout(
           div(style = "text-align:center;"),
-          cellWidths = c("10", "65%", "0%", "20%","5%"),
+          cellWidths = c("5%", "60%", "0%", "15%","0%","15%","0%"),
           textInput(
             "city",
             label = "",
-            placeholder = "example: San Francisco, CA",
+            placeholder = "San Francisco, CA",
             value = "",
             width = "100%"
           ),
@@ -194,13 +203,23 @@ body <- dashboardBody(
           ),
           tags$style(
             type = "text/css",
-            "#search {display: inline-block;text-align: center;margin-top:32%;margin-right:30%}"
+            "#search {display: inline-block;text-align: center;margin-top:38%;margin-right:30%}"
+          ),
+          actionButton(
+            "reset",
+            label = "",
+            width = "100%",
+            icon = icon("undo")
+          ),
+          tags$style(
+            type = "text/css",
+            "#reset {display: inline-block;text-align: center;margin-top:38%;margin-right:30%}"
           )
         ),
         br(),
-        h4(
+        h5(
           HTML(
-            '<p style="color:black;margin-left:35px">...Or enter the location with the menus...</p>'
+            '<p style="color:black;margin-left:35px">...Or select your state and county using the menus...</p>'
           ),
           .noWS = "outside"
         ),
@@ -214,7 +233,7 @@ body <- dashboardBody(
                  }
                  ")
           )),
-          cellWidths = c("7.5%", "40%","0%", "40%","12.5%"),
+          cellWidths = c("10%", "40%","0%", "40%","10%"),
           selectInput(
             #selectize = TRUE,
             "state",
@@ -232,22 +251,24 @@ body <- dashboardBody(
           ),
           tags$style(type = "text/css", "#county {text-align:center}")
         ),
+        tags$style(type = "text/css", "#out_of_state {margin-left:10px}"),
         checkboxInput(
           inputId = "out_of_state",
           label = HTML(
-            "<p style='color:black;margin-left:25px'>Only list locations in other states?</p>"
+            "<p style='color:black;margin-left:25px'>Do you want to move out of state?</p>"
           )
         ),
-        tags$style(type = "text/css", "#out_of_state {margin-left:10px}"),
-          actionButton(
+        actionButton(
           "find",
-          label = HTML("<b>Find Your Niche</b>"),
+          label = HTML("<b>Search Your Niche</b>"),
           width = "50%"
         ),
         tags$style(type = "text/css", "#find {text-align:center; margin-left:25%}"),
+        br(),
+        br(),
         h5(
           HTML(
-          "<p>A map of your results may take some time to load. Please be patient!</p>"
+          "<p style='color:black;margin-left:35px'>An interactive map of your results may take some time to load. Please be patient! It will appear to the right when ready.</p>"
           )
         )
       ),
@@ -261,7 +282,7 @@ body <- dashboardBody(
         fluidRow(plotlyOutput("map", height = "550px")),
         h4(
           HTML(
-            "<b style='text-align:center'>Counties with scores closer to 1 are more similar to the target location.</b>"
+            "<b style='text-align:center'>Counties with scores closer to 1 are more similar to your location.</b>"
           )
         )
       )
@@ -286,7 +307,7 @@ body <- dashboardBody(
         dataTableOutput("table", width = "100%"),
         h5(
           HTML(
-            "<p>Send questions, suggestions, or feedback to ericvc2@gmail.com</p>"
+            "<p>Send questions, suggestions, or feedback to <u>ericvc2@gmail.com</u></p>"
           )
         )
       )
@@ -296,8 +317,8 @@ body <- dashboardBody(
 
 ## UI
 ui = dashboardPage(
-  dashboardHeader(title = "Niche: Easier Moving Decisions", titleWidth =
-                    350),
+  dashboardHeader(title = "Niche: Data-Driven Moving Decisions", titleWidth =
+                    400),
   sidebar,
   body
 )
@@ -308,15 +329,25 @@ server = function(input, output, session) {
     filter(menuOpts, state == input$state)
   })
   
-  # Display report topic menu options based on report type
+  #Reset search options
+  #Dynamic input menu
+  observeEvent(input$reset, {
+    updateTextInput(session, "city", value = "")
+    updateSelectInput(session, "state", selected = "Alabama")
+  })
+  #Display report topic menu options based on report type
   observeEvent(state(), {
     choices <- sort(unique(state()$county))
+    crds <- city_coords(input$city)
     if (input$city != "") {
       loc_data <-
-        city_coords(input$city) %>%
+        crds %>%
         matrix(., ncol = 2) %>%
         SpatialPoints(., p4s_ll) %>%
         over(., counties)
+      if(is.na(loc_data$SP_ID)){
+        loc_data <- nearest_polygon(crds, counties)
+      }
       county = loc_data["county"]$county %>%
         str_replace_all(pattern = "_", replace = " ") %>%
         str_to_title()
@@ -331,11 +362,15 @@ server = function(input, output, session) {
   
   #Dynamic input menu
   observeEvent(input$search, {
+    crds <- city_coords(input$city)
     loc_data <-
-      city_coords(input$city) %>%
+      crds %>%
       matrix(., ncol = 2) %>%
       SpatialPoints(., p4s_ll) %>%
       over(., counties)
+    if(is.na(loc_data$SP_ID)){
+      loc_data <- nearest_polygon(crds, counties)
+    }
     state <- loc_data["state"]$state %>%
       str_replace_all(pattern = "_", replace = " ") %>%
       str_to_title()
@@ -399,10 +434,11 @@ server = function(input, output, session) {
     vals <- apply(vals, 2, transform_data)
     vals_t <- t(vals)
     attr(vals_t, "dimnames") <- NULL
-    #Cosine similarity
+    
+    #Measure cosine distance among counties, relative to focal county
     focal_index <-
       which(d$name == focal_location) #index of focal location
-    Score = cos_prox(vals_t, focal_index, measure = "proximity")
+    Score = cos_proximity(vals_t, focal_index, measure = "angle")
     
     progress$set(message = 'Creating map...',
                  detail = '')
@@ -414,7 +450,23 @@ server = function(input, output, session) {
                      str_to_title(input_state)) #plot title
     d$label = paste(d$county, d$state, sep = ", ") %>%
       str_replace_all(pattern = "_", replacement = " ") %>%
-      str_to_title() #location labels (County, State)
+      str_to_title()
+    pop <-
+      d$total_population %>% exp() %>% round() %>% formatC(
+        x = .,
+        digits = 0,
+        big.mark = ",",
+        format = "d"
+      )
+    income <-
+      d$Median_HH_Inc %>% exp() %>% round() %>% formatC(
+        x = .,
+        digits = 0,
+        big.mark = ",",
+        format = "d"
+      ) %>% paste0("$",.)
+    d <- d %>%
+      mutate(label = sprintf("%s<br>Population: %s<br>Median Income: %s", label, pop, income))#location labels (County, State)
     d. <- cbind(d$Score, d2)
     names(d.) <-
       c(c("Score", "County", "State"), names(d.)[-c(1:3)])
@@ -477,8 +529,8 @@ server = function(input, output, session) {
         limits = c(0, 1)
       )
     
-    p2 <- ggplotly(p, tooltip = c("text", "label")) %>%
-      partial_bundle()
+    p2 <- ggplotly(p, tooltip = c("text", "label")) #%>%
+      #partial_bundle()
     
     progress$set(value = 3)
     
@@ -493,6 +545,10 @@ server = function(input, output, session) {
         filter(State != input$state)
     }
     d_out = dx[order(dx$Score, decreasing = TRUE), ]
+    orderCols <- c("Score","Find_homes","Location",
+                   "Mean_Temp_F","Precipitation_mm","Precip_Variation",
+                   "Population","Median_Income","Pct_Under_29","Pct_Older_65",
+                   "Pct_Rural","Pct_PublicLands")
     zillowQuery <-
       sprintf("%s-county,-%s",
               tolower(d_out$County),
@@ -525,9 +581,10 @@ server = function(input, output, session) {
           format = "f"
         )
       ))
+    d_out <- d_out[,orderCols]
     return(d_out)
   })
-  
+
   focal_table <- eventReactive(input$find, {
     focal_location = paste(input$county, input$state, sep = ",_") %>%
       str_replace_all(" ", "_") %>%
@@ -566,6 +623,11 @@ server = function(input, output, session) {
           format = "f"
         )
       ))
+    orderCols <- c("Score","Find_homes","Location",
+                   "Mean_Temp_F","Precipitation_mm","Precip_Variation",
+                   "Population","Median_Income","Pct_Under_29","Pct_Older_65",
+                   "Pct_Rural","Pct_PublicLands")
+    d_out <- d_out[,orderCols]
     return(d_out)
   })
   

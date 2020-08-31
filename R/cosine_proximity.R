@@ -1,6 +1,6 @@
-cos_prox <- function(x, focal_index, measure = "proximity") {
+cosine_proximity <- function(x, focal_index, measure = "angle") {
   
-  assertthat::assert_that(measure %in% c("proximity", "similarity"),
+  assertthat::assert_that(measure %in% c("angle", "distance"),
                           length(measure) == 1)
   
   cos_prox = rep(NA, ncol(x))
@@ -17,10 +17,10 @@ cos_prox <- function(x, focal_index, measure = "proximity") {
     }
   }
   
-  if (measure=="proximity")
+  if (measure=="angle")
     return(cos_prox)
   else
-    cos_similarity = 1 - (2 * acos(cos_prox) / pi)
-    return(cos_similarity)
+    cos_distance = acos(cos_prox) / pi
+    return(cos_distance)
   
 }
