@@ -1,4 +1,4 @@
-## Load functions in current working directory
+## Source R functions in current working directory
 src_files <- list.files("R/", full.names = TRUE)
 sapply(src_files, function(x)
   source(x))
@@ -438,7 +438,7 @@ server = function(input, output, session) {
     #Measure cosine distance among counties, relative to focal county
     focal_index <-
       which(d$name == focal_location) #index of focal location
-    Score = cos_proximity(vals_t, focal_index, measure = "angle")
+    Score = cosine_proximity(vals_t, focal_index, measure = "angle")
     
     progress$set(message = 'Creating map...',
                  detail = '')
