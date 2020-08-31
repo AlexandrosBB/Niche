@@ -42,7 +42,7 @@ transform_data <- function(x) {
 
 ## Set page variables
 p4s_ll <- CRS("+proj=longlat")
-d <- readRDS("county_data.rds")
+d <- readRDS("data/county_data.rds")
 counties <- as(d, "Spatial")
 proj4string(counties) <- p4s_ll
 centroids <-
@@ -50,7 +50,7 @@ centroids <-
     colMeans(x[[1]][[1]])) %>% t %>% data.frame()
 d$long = centroids[, 1]
 d$lat = centroids[, 2]
-d2 <- readRDS("summary_data.rds")
+d2 <- readRDS("data/summary_data.rds")
 d2 <- d2 %>%
   mutate(Population = exp(Population)) %>%
   mutate(Population = round(Population)) %>%
@@ -67,8 +67,15 @@ menuOpts$county <-
   str_replace_all(pattern = "_", replacement = " ") %>%
   str_to_title()
 slider_width <- "85%"
-label_county = HTML('<p style="color:black;margin-left:45px">County</p>')
-label_state = HTML('<p style="color:black;margin-left:45px">State</p>')
+label_county = HTML('<p style="color:black;margin-left:0px;text-align:center">County</p>')
+label_state = HTML('<p style="color:black;margin-left:0px;text-align:center">State</p>')
+
+## CSS Customization
+css <- HTML(" body {
+    background-color:#F2F2F2;
+    margin-right:5%;
+    margin-left:10%;
+}")
 
 
 ## Create Python virtual environment
@@ -78,29 +85,23 @@ reticulate::use_virtualenv("python_environment", required = TRUE)
 reticulate::source_python("Python/city_coords.py")
 
 
-## Create sidebar for app
-sidebar <- dashboardSidebar(disable = TRUE,
-                            width = 300)
-
 ## Create body of dashboard page
-body <- dashboardBody(
-  #changing theme
-  style = "height:100%;margin-left:10%;margin-right:5%;margin-top:0%",
+ui <-
   fluidPage(
-    theme = shinytheme("flatly"),
-    fluidRow(column(
-      12,
-      align = "center",
-      h1(
-        HTML("<u>Niche: An Interface for Exploring Relocation Options</u>")
-      ),
-      br(),
-      h4(
-        HTML(
-        "Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers how important each of these variables are to you when making its recommendations. Try it out! You may be surprised where you are able to find a perfect new home."
-        )
-      )
-    )),
+    title = "Niche: Data-Driven Relocations",
+    tags$head(tags$style(css)),
+    theme = shinytheme("cosmo"),
+    fluidRow(column(12,
+                    align = "center",
+                    h1(
+                      HTML("<u>Niche: An Interface for Exploring Relocation Options</u>")
+                    ),
+                    br(),
+                    h4(
+                      HTML(
+                        "<p style='font-color:#f2f2f2;font-size:25px'>Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers how important each of these variables are to you when making its recommendations. Try it out! You may be surprised where a perfect new home awaits.</p>"
+                      )
+                    ))),
     br(),
     fluidRow(
       column(
@@ -108,12 +109,12 @@ body <- dashboardBody(
         align = "center",
         h5(
           HTML(
-            "<p style='color:black;margin-left:0px;text-align:center'>Start by answering some questions about what how important each of the following are to you about the place you live.</p>"
+            "<p style='color:black;margin-left:0px;text-align:center;font-size:18px;'>Start by answering some questions about what how important each of the following are to you about the place you live.</p>"
           )
         ),
-        h6(
+        h5(
           HTML(
-            "<p style='color:black;margin-left:0px;text-align:center'>(1 - not important, 3 - neutral, 5 - very important)</p>"
+            "<p style='color:black;margin-left:0px;text-align:center;font-size:15px'>(1 - not important, 3 - neutral, 5 - very important)</p>"
           )
         ),
         sliderInput(
@@ -173,20 +174,20 @@ body <- dashboardBody(
         align = "left",
         h5(
           HTML(
-            '<p style="color:black;margin-left:35px">Niche makes recommendations by comparing your county to others throughout the country.</p>'
+            '<p style="color:black;margin-left:35px;font-size:18px;">Niche makes recommendations by comparing your county to others throughout the country.</p>'
           ),
           .noWS = "outside"
         ),
         align = "left",
         h5(
           HTML(
-            '<p style="color:black;margin-left:35px">Enter the name of your town or city...</p>'
+            '<p style="color:black;margin-left:35px;font-size:18px;">Enter the name of your town or city...</p>'
           ),
           .noWS = "outside"
         ),
         splitLayout(
           div(style = "text-align:center;"),
-          cellWidths = c("5%", "60%", "0%", "15%","0%","15%","0%"),
+          cellWidths = c("5%", "60%", "0%", "15%", "0%", "15%", "0%"),
           textInput(
             "city",
             label = "",
@@ -219,21 +220,24 @@ body <- dashboardBody(
         br(),
         h5(
           HTML(
-            '<p style="color:black;margin-left:35px">...Or select your state and county using the menus...</p>'
+            '<p style="color:black;margin-left:35px;font-size:18px;">...Or select your state and county using the menus...</p>'
           ),
           .noWS = "outside"
         ),
         br(),
         splitLayout(
           tags$head(tags$style(
-            HTML("
+            HTML(
+              "
                  .shiny-split-layout > div {
                  text-align:center;
                  overflow: visible;
                  }
-                 ")
+                 "
+            )
           )),
-          cellWidths = c("10%", "40%","0%", "40%","10%"),
+          # cellWidths = c("10%", "40%", "0%", "40%", "10%"),
+          cellWidths = c("10%","40%","40%"),
           selectInput(
             #selectize = TRUE,
             "state",
@@ -241,21 +245,19 @@ body <- dashboardBody(
             selected = NULL,
             choices = unique(menuOpts$state)
           ),
-          tags$style(type = "text/css", "#state {text-align:center}"),
           selectInput(
             #selectize = TRUE,
             "county",
             label = label_county,
             selected = NULL,
             choices = ""
-          ),
-          tags$style(type = "text/css", "#county {text-align:center}")
+          )
         ),
-        tags$style(type = "text/css", "#out_of_state {margin-left:10px}"),
+        tags$style(type = "text/css", "#out_of_state {margin-left:0px}"),
         checkboxInput(
           inputId = "out_of_state",
           label = HTML(
-            "<p style='color:black;margin-left:25px'>Do you want to move out of state?</p>"
+            "<p style='margin-left:25px;font-size:18px;'>Do you want to move out of state?</p>"
           )
         ),
         actionButton(
@@ -268,7 +270,12 @@ body <- dashboardBody(
         br(),
         h5(
           HTML(
-          "<p style='color:black;margin-left:35px'>An interactive map of your results may take some time to load. Please be patient! It will appear to the right when ready.</p>"
+            "<p style='margin-left:35px;font-size:18px;'>An interactive map of your results may take some time to load. Please be patient! It will appear to the right when ready.</p>"
+          )
+        ),
+        h5(
+          HTML(
+            "<p style='margin-left:35px;font-size:18px;'>A table summarizing your results will also appear below.</p>"
           )
         )
       ),
@@ -282,12 +289,11 @@ body <- dashboardBody(
         fluidRow(plotlyOutput("map", height = "550px")),
         h4(
           HTML(
-            "<b style='text-align:center'>Counties with scores closer to 1 are more similar to your location.</b>"
+            "<p style='text-align:center'>Counties with scores closer to 1 are more similar to your location.</p>"
           )
         )
       )
     ),
-    br(),
     br(),
     br(),
     column(
@@ -299,7 +305,7 @@ body <- dashboardBody(
       fluidRow(
         h4(
           HTML(
-            "<p>Click on the links under 'Find_homes' to search the area on Zillow. For more information about the area, click on the links under 'Location' to search the area on Google.</p>"
+            "<p>Click on the links under 'Find_homes' to search nearby home listings on Zillow. For more information about each area, click on the links under 'Location' to search Google.</p>"
           )
         ),
         dataTableOutput("focal_table", width = "100%"),
@@ -307,21 +313,17 @@ body <- dashboardBody(
         dataTableOutput("table", width = "100%"),
         h5(
           HTML(
-            "<p>Send questions, suggestions, or feedback to <u>ericvc2@gmail.com</u></p>"
+            "<p><a href='https://github.com/ericvc/Niche'>Click here to view my source code</a></p>"
+          )
+        ),
+        h5(
+          HTML(
+            "<p>Send questions, suggestions, or feedback to <a href='mailto:ericvc2@gmail.com'>ericvc2'at'gmail.com</a></p>"
           )
         )
       )
     )
   )
-)
-
-## UI
-ui = dashboardPage(
-  dashboardHeader(title = "Niche: Data-Driven Moving Decisions", titleWidth =
-                    400),
-  sidebar,
-  body
-)
 
 ## Server logic
 server = function(input, output, session) {
@@ -345,7 +347,7 @@ server = function(input, output, session) {
         matrix(., ncol = 2) %>%
         SpatialPoints(., p4s_ll) %>%
         over(., counties)
-      if(is.na(loc_data$SP_ID)){
+      if (is.na(loc_data$SP_ID)) {
         loc_data <- nearest_polygon(crds, counties)
       }
       county = loc_data["county"]$county %>%
@@ -368,7 +370,7 @@ server = function(input, output, session) {
       matrix(., ncol = 2) %>%
       SpatialPoints(., p4s_ll) %>%
       over(., counties)
-    if(is.na(loc_data$SP_ID)){
+    if (is.na(loc_data$SP_ID)) {
       loc_data <- nearest_polygon(crds, counties)
     }
     state <- loc_data["state"]$state %>%
@@ -464,15 +466,20 @@ server = function(input, output, session) {
         digits = 0,
         big.mark = ",",
         format = "d"
-      ) %>% paste0("$",.)
+      ) %>% paste0("$", .)
     d <- d %>%
-      mutate(label = sprintf("%s<br>Population: %s<br>Median Income: %s", label, pop, income))#location labels (County, State)
+      mutate(label = sprintf(
+        "%s<br>Population: %s<br>Median Income: %s",
+        label,
+        pop,
+        income
+      ))#location labels (County, State)
     d. <- cbind(d$Score, d2)
     names(d.) <-
       c(c("Score", "County", "State"), names(d.)[-c(1:3)])
-    saveRDS(d., "new_table.rds") #save to storage
-    d <- d[order(d$Score, decreasing = TRUE), ] #sort by SCORE DESC
-
+    saveRDS(d., "data/new_table.rds") #save to storage
+    d <- d[order(d$Score, decreasing = TRUE),] #sort by SCORE DESC
+    
     progress$set(message = 'Converting map to Plotly object...',
                  detail = 'This may take several moments.')
     progress$set(value = 2)
@@ -530,7 +537,7 @@ server = function(input, output, session) {
       )
     
     p2 <- ggplotly(p, tooltip = c("text", "label")) #%>%
-      #partial_bundle()
+    #partial_bundle()
     
     progress$set(value = 3)
     
@@ -539,16 +546,26 @@ server = function(input, output, session) {
   })
   
   table <- eventReactive(input$find, {
-    dx = readRDS("new_table.rds")
+    dx = readRDS("data/new_table.rds")
     if (input$out_of_state) {
       dx <- dx %>%
         filter(State != input$state)
     }
-    d_out = dx[order(dx$Score, decreasing = TRUE), ]
-    orderCols <- c("Score","Find_homes","Location",
-                   "Mean_Temp_F","Precipitation_mm","Precip_Variation",
-                   "Population","Median_Income","Pct_Under_29","Pct_Older_65",
-                   "Pct_Rural","Pct_PublicLands")
+    d_out = dx[order(dx$Score, decreasing = TRUE),]
+    orderCols <- c(
+      "Score",
+      "Find_homes",
+      "Location",
+      "Mean_Temp_F",
+      "Precipitation_mm",
+      "Precip_Variation",
+      "Population",
+      "Median_Income",
+      "Pct_Under_29",
+      "Pct_Older_65",
+      "Pct_Rural",
+      "Pct_PublicLands"
+    )
     zillowQuery <-
       sprintf("%s-county,-%s",
               tolower(d_out$County),
@@ -567,11 +584,10 @@ server = function(input, output, session) {
               d_out$County,
               d_out$State)
     d_out <- cbind(Find_homes, Location, d_out) %>%
-      select(.,-c(County, State)) %>%
-      mutate(Population = formatC(Population, 
-                                  big.mark = ",", 
-                                  format = "d")
-             ) %>%
+      select(., -c(County, State)) %>%
+      mutate(Population = formatC(Population,
+                                  big.mark = ",",
+                                  format = "d")) %>%
       mutate(Median_Income = paste0(
         "$",
         formatC(
@@ -581,15 +597,15 @@ server = function(input, output, session) {
           format = "f"
         )
       ))
-    d_out <- d_out[,orderCols]
+    d_out <- d_out[, orderCols]
     return(d_out)
   })
-
+  
   focal_table <- eventReactive(input$find, {
     focal_location = paste(input$county, input$state, sep = ",_") %>%
       str_replace_all(" ", "_") %>%
       tolower()
-    dx = readRDS("new_table.rds")
+    dx = readRDS("data/new_table.rds")
     d_out = dx %>%
       filter(State == input$state) %>%
       filter(County == input$county)
@@ -612,7 +628,7 @@ server = function(input, output, session) {
               d_out$County,
               d_out$State)
     d_out <- cbind(Find_homes, Location, d_out) %>%
-      select(.,-c(County, State)) %>%
+      select(., -c(County, State)) %>%
       mutate(Population = formatC(Population, big.mark = ",", format = "d")) %>%
       mutate(Median_Income = paste0(
         "$",
@@ -623,11 +639,21 @@ server = function(input, output, session) {
           format = "f"
         )
       ))
-    orderCols <- c("Score","Find_homes","Location",
-                   "Mean_Temp_F","Precipitation_mm","Precip_Variation",
-                   "Population","Median_Income","Pct_Under_29","Pct_Older_65",
-                   "Pct_Rural","Pct_PublicLands")
-    d_out <- d_out[,orderCols]
+    orderCols <- c(
+      "Score",
+      "Find_homes",
+      "Location",
+      "Mean_Temp_F",
+      "Precipitation_mm",
+      "Precip_Variation",
+      "Population",
+      "Median_Income",
+      "Pct_Under_29",
+      "Pct_Older_65",
+      "Pct_Rural",
+      "Pct_PublicLands"
+    )
+    d_out <- d_out[, orderCols]
     return(d_out)
   })
   
