@@ -143,7 +143,7 @@ d %>%
 
 <img src="README_files/figure-gfm/county_data_plot-1.png" style="display: block; margin: auto;" />
 
-## 1\. Climatric Variables from WorldClim
+## 1\. Climatic Variables from WorldClim
 
 To characterize the climatic conditions for each county, I turned to
 WorldClim’s global climate database, specifically their ‘bioclim’
@@ -201,14 +201,14 @@ plot(bioclim, col=viridis::viridis(15))
 ```
 
 <img src="README_files/figure-gfm/bioclim-1.png" style="display: block; margin: auto;" />
-\#\#\# Feature extraction using principal components analysis The
-dataset includes 19 variables but deal mostly with characterizing
-temperature and precipitation patterns. As a result, we might expect
-that many of these variables will be highly correlated with one another,
-and would want to consider using feature extraction to distill the
-variation to fewer dimensions.
+**Feature extraction using principal components analysis** The dataset
+includes 19 variables but deal mostly with characterizing temperature
+and precipitation patterns. As a result, we might expect that many of
+these variables will be highly correlated with one another, and would
+want to consider using feature extraction to distill the variation to
+fewer dimensions.
 
-Indeed what I have chosen to do here is perform principal components
+Indeed, what I have chosen to do here is perform principal components
 analysis (PCA) on the climate data in order to collapse raw variables
 into a smaller number of axes. Before I did that, however, it was
 important to first normalize each variable by centering each around its
@@ -712,17 +712,15 @@ the angle \(\theta_{i,j}\) from the edges formed between the column
 vector of the focal county \(m_{i}\) and a comparison county \(m_{j}\)
 in \(n-\)dimensional space. The cosine of two vectors that share many
 properties will have an angle close to 0 and therefore a cosine value
-near 1. Conversely, disimilar counties will have lower scores because
+near 1. Conversely, dissimilar counties will have lower scores because
 the angle of their edge will be larger. The formula for calculating
 cosine similarity is as
 follows:
 
-\#\[cos(\theta_{i,j}) = \frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}, \space\space i \neq\ j\]
-
 <img src="https://latex.codecogs.com/svg.latex?\Large&space;cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}" text="cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}"/>
 
 The code for this calculation is given below along with an example for
-Cook County, Illinois, which includes the city of Chicago.
+Cook County, IL, which includes the city of Chicago.
 
 ``` r
 cosine_similarity <- function(x, focal_index, measure = "angle") {
@@ -805,4 +803,4 @@ translating their personal preferences and past experiences into a
 data-centric model in order to make recommendations. Some future plans
 for this tool include adding historical data that would allow users to
 find locations in the present that are similar to a location *and time*
-from the recent past (e.g., \(<=\) 20 years).
+from the recent past.

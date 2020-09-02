@@ -105,7 +105,7 @@ d %>%
 
 ```
 
-## 1. Climatric Variables from WorldClim
+## 1. Climatic Variables from WorldClim
 
 To characterize the climatic conditions for each county, I turned to WorldClim's global climate database, specifically their 'bioclim' collection of annual climate summary measurements. As with the county-level polygons, there exists an API for downloading these files directly from R, this time using the `raster::getData()` function. Below is the code for downloading 'bioclim' data at a resolution of 5 arc minutes, or approximately 64 km$^2$ per grid cell at latitudes considered here.
 
@@ -152,10 +152,10 @@ bioclim = stack(bclimFiles[orderFiles]) %>%
 
 plot(bioclim, col=viridis::viridis(15))
 ```
-### Feature extraction using principal components analysis
+**Feature extraction using principal components analysis**
 The dataset includes 19 variables but deal mostly with characterizing temperature and precipitation patterns. As a result, we might expect that many of these variables will be highly correlated with one another, and would want to consider using feature extraction to distill the variation to fewer dimensions.
 
-Indeed what I have chosen to do here is perform principal components analysis (PCA) on the climate data in order to collapse raw variables into a smaller number of axes. Before I did that, however, it was important to first normalize each variable by centering each around its mean and re-scaling the variance to 1 by dividing measuremnents by their standard deviation. After processing the data and performing the PCA, I found that approximately 85% of the total varition could was captured by the first four principal components, and chose to hold onto these axes of variation in order to characterize climatic variation in the dataset.
+Indeed, what I have chosen to do here is perform principal components analysis (PCA) on the climate data in order to collapse raw variables into a smaller number of axes. Before I did that, however, it was important to first normalize each variable by centering each around its mean and re-scaling the variance to 1 by dividing measuremnents by their standard deviation. After processing the data and performing the PCA, I found that approximately 85% of the total varition could was captured by the first four principal components, and chose to hold onto these axes of variation in order to characterize climatic variation in the dataset.
 
 ```{r bioclim_pca, fig.align="center"}
 #normalize data to mean 0 and unit variance
@@ -591,7 +591,7 @@ attr(vals_t, "dimnames") <- NULL
     
 ```
 
-Cosine similarity is a common method used in recommender systems to identify similar entities (books, movies, etc.) on the basis of a vector of data features. In the previous block of code, we created and $N \times M$ matrix where N is the number of features in the dataset and M is the number of counties. Cosine similarity works by calculating the angle $\theta_{i,j}$ from the edges formed between the column vector of the focal county $m_{i}$ and a comparison county $m_{j}$ in $n-$dimensional space. The cosine of two vectors that share many properties will have an angle close to 0 and therefore a cosine value near 1. Conversely, disimilar counties will have lower scores because the angle of their edge will be larger. The formula for calculating cosine similarity is as follows: 
+Cosine similarity is a common method used in recommender systems to identify similar entities (books, movies, etc.) on the basis of a vector of data features. In the previous block of code, we created and $N \times M$ matrix where N is the number of features in the dataset and M is the number of counties. Cosine similarity works by calculating the angle $\theta_{i,j}$ from the edges formed between the column vector of the focal county $m_{i}$ and a comparison county $m_{j}$ in $n-$dimensional space. The cosine of two vectors that share many properties will have an angle close to 0 and therefore a cosine value near 1. Conversely, dissimilar counties will have lower scores because the angle of their edge will be larger. The formula for calculating cosine similarity is as follows: 
 
 <img src="https://latex.codecogs.com/svg.latex?\Large&space;cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}" text="cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}"/>
 
@@ -642,4 +642,4 @@ The Top 10 recommendations for Cook County residents are presented here. Most si
 
 This was a brief overview of the data and methods that went into **Niche: An Interface for Exploring Relocation Options**. If you would like to give a try, visit the most up-to-date version on my Shinyapps page [(https://ericvc.shinyapps.io/Niche/)](https://ericvc.shinyapps.io/Niche/) or clone the GitHub directory and run the app from your computer with RStudio. Note, the `app.R` file contains code for initializing a Python virtual environment (using the `reticulate` package), which Niche requires in order to function completely. This code causes issues when executed on my local system. Commenting out the code fixes the issue, but are otherwise required when running the hosted version of the program. Some features will not be available without the ability to execute Python code.
 
-The purpose of Niche is to help guide users' relocation research by translating their personal preferences and past experiences into a data-centric model in order to make recommendations. Some future plans for this tool include adding historical data that would allow users to find locations in the present that are similar to a location *and time* from the recent past (e.g., $<=$ 20 years).
+The purpose of Niche is to help guide users' relocation research by translating their personal preferences and past experiences into a data-centric model in order to make recommendations. Some future plans for this tool include adding historical data that would allow users to find locations in the present that are similar to a location *and time* from the recent past.
