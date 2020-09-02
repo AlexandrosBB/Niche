@@ -1,48 +1,53 @@
 Niche: An Interface for Exploring Relocation Options
 ================
 
-My parents often bring up in conversation their desire to move away from
-their California home and find a new place to settle down for
-retirement. Typically they will cite factors that they perceive as
-having altered the essence of this suburban and rural county such as
+Lately, my parents will often bring up in conversation their desire to
+move away from their California home and find a new place to settle down
+for retirement. Typically they will cite factors that they perceive as
+having altered the essence of their suburban and rural county such as
 higher costs of living, population growth, worsening traffic, and
 growing rates of violent crime that they say have made them feel
-increasing estranged from their community in recent years. Despite these
-concerns, both admit that there is much they would miss about their home
+estranged from their community in recent years. Despite these concerns,
+both admit that there is much they would miss about their current home
 such as the mild climate of the California coast, the abundant natural
-beauty of the region, and an impressive matrix of open space and public
-lands, all of which allow them to enjoy outdoor hobbies throughout the
-year.
+beauty of the region, and an vast matrix of open space and public lands
+that allow them to enjoy outdoor hobbies throughout the year.
 
 The idea for Niche came from wanting to help my parents explore their
-relocation options. The name is taken from a foundational concept in
-biology. While many definitions of a niche exist, from conceptural
-models to mathematical frameworks, virtually all definitions agree that
-one’s niche can be thought of as the set of environmental conditions
-necessary for an organism to thrive. While some organisms can only
-tolerate a narrow range of conditions (think temperature, light,
-salinity, etc.) others will do just fine when exposed to large changes
-in these same variables. Members of the same species will also occupy
-different niches due to the individual variation that exists in their
-anatomy, physiology, and behavior. As a result, no two individuals
-experience a shared environment in exactly the same way.
+relocation options by taking into considertation what matters most to
+them about the place they live now. The name of this app is taken from a
+foundational concept in biology. While many definitions of a niche
+exist, from conceptural models to mathematical frameworks, virtually all
+definitions agree that one’s niche can be thought of as the set of
+environmental conditions necessary for an organism to thrive. While some
+species can only tolerate a narrow range of conditions (think
+temperature, light, salinity, etc.) others will do just fine when
+exposed to large changes in these same variables. But even members of
+the same species will occupy a different niche due to the individual
+variation that exists in their anatomy, physiology, and behavior. The
+point is that no two individuals experience a shared environment in
+exactly the same way. We all have different tolerances.
 
 Borrowing from this concept, it is easy to imagine how our own ability
-to thrive will be influenced by our surroundings, and that the best
-tools to guide our understanding of the conditions best suit us as
-individuals come from reflecting on our own experiences. However it is
-also possible that we can not put a finger on what exactly makes a place
-feel like home. That is where Niche comes in, using a data-driven
-approach to capture the gestalt properties of a location, and to then
-search them out elsewhere. You know what you want to find in the places
-you will live, let Niche help you explore those locations.
+to thrive will be influenced by our surroundings. Niche works by asking
+users to identify a location where they would like to live and answer a
+few questions about what is important to them about that place. The
+program then identifies other areas in the country with similar features
+before making recommendations on relocation options. Niche considers
+both the more salient characteristics of a location such as the climate
+and land uses as well as factors that may be less conspicuous such as
+economic, demographic, and political indicators. Niche relies on the
+belief that the best tools to guide our understanding of the conditions
+best suit us as individuals will come from reflecting on our
+experiences. You know what you want to find in the places you want to
+live and Niche can help you find them.
 
 ![](niche.png) [**Try the Niche app right now. Click
 here\!**](https://ericvc.shinyapps.io/Niche)
 
 Below, I detail the data and methods that went into creating Niche.
 Thank you for reading. If you have any feedback, questions, or
-suggestion, get in touch with me at ericvc2`at`gmail.com.
+suggestions get in touch with me at ericvc2\[at\]gmail.
 
 ## 0\. Get County-level Boundary Data, the unit of this analysis
 
@@ -54,9 +59,9 @@ type object used by the `sf` (“simple features”) geospatial package.
 Therefore, I had to first download the county level data using
 `ggplot2`, convert the coordinate data into a ’Spatial\*’ object (used
 by the `sp` package), save this data to local storage as a shapefile,
-and subsequerntly read-in the file back into R using `sf::st_read()`. I
-decided to save the data as a shapefile because the conversion to
-‘SpatialPolygonsDataFrame’ was non-trivial ([this code
+and finally read the file back into R using `sf::st_read()`. I decided
+to save the data as a shapefile as an intermediate data prodcut because
+the conversion to ‘SpatialPolygonsDataFrame’ was non-trivial ([this code
 helped](https://stackoverflow.com/questions/21759134/convert-spatialpointsdataframe-to-spatialpolygons-in-r%3E))
 and took a bit of time to finish.
 
@@ -102,8 +107,8 @@ counties$state = locs[,2]
 ```
 
 Once completed, I had a map of the United States composed of polygons
-for each county. Now, any new columns added to `d` will be automatically
-georeferenced.
+for each county. Now, any new columns added to `d` (an ‘sf’ object) will
+be automatically georeferenced.
 
 ``` r
 d <- st_read("raw_data/shape/counties.shp", quiet = TRUE)
@@ -143,10 +148,10 @@ d %>%
 To characterize the climatic conditions for each county, I turned to
 WorldClim’s global climate database, specifically their ‘bioclim’
 collection of annual climate summary measurements. As with the
-county-level polygons, there an exists an API for downloading these
-files directly from R, this time using the `raster::getData()` function.
-Below is the code for downloading ‘bioclim’ data at a resolution of 5
-arc minutes, or approximately 8 x 8 km^2 per grid cell at latitudes
+county-level polygons, there exists an API for downloading these files
+directly from R, this time using the `raster::getData()` function. Below
+is the code for downloading ‘bioclim’ data at a resolution of 5 arc
+minutes, or approximately 64 km\(^2\) per grid cell at latitudes
 considered here.
 
 ``` r
@@ -200,7 +205,7 @@ plot(bioclim, col=viridis::viridis(15))
 dataset includes 19 variables but deal mostly with characterizing
 temperature and precipitation patterns. As a result, we might expect
 that many of these variables will be highly correlated with one another,
-and would want to consider using feature extraction to distill this
+and would want to consider using feature extraction to distill the
 variation to fewer dimensions.
 
 Indeed what I have chosen to do here is perform principal components
@@ -271,8 +276,8 @@ plot(pcClim, col=viridis::viridis(15))
 
 <img src="README_files/figure-gfm/bioclim_pca-1.png" style="display: block; margin: auto;" />
 
-Finally, we can extract the feature values from the county-level
-polygons.
+Finally, we can extract the principal component values from the
+county-level polygons.
 
 ``` r
 bioclim_ex = raster::extract(
@@ -286,11 +291,10 @@ d = cbind(d, bioclim_ex)
 
 ## 2\. Demographic, Political, and Economic Indicators
 
-In the Niche interface users are asked to separately rate the importance
-of demographic, political, and economic factors before making
-recommendations, but the data for these categories actually come from
-combining two different county level data sources. The **MIT Election
-Lab** provides the ‘election-context-2018’ dataset via their [GitHub
+The data for demographic, political, and economic variables come from a
+combination of two different county level data sources. The **MIT
+Election Lab** provides the ‘election-context-2018’ dataset via their
+[GitHub
 page](https://github.com/MEDSL/2018-elections-unoffical/blob/master/election-context-2018.csv),
 which includes information on the outcomes of state and national
 elections in addition to an impressive variety of demographic variables
@@ -360,9 +364,9 @@ d <- d %>%
 ``` r
 ggplot(d) +
   theme_minimal() +
-  ggtitle("Population by U.S. County", subtitle = "log scale") +
-  geom_sf(mapping=aes(fill=total_population), size=0.01) +
-  scale_fill_viridis_c("log scale")
+  ggtitle("Population by U.S. County") +
+  geom_sf(mapping=aes(fill=total_population), size=0.1, color="gray50") +
+  scale_fill_viridis_c("(log scale)")
 ```
 
 <img src="README_files/figure-gfm/pde-1.png" style="display: block; margin: auto;" />
@@ -374,11 +378,14 @@ having plenty of public lands nearby for a day hike, camping trip, or
 mountain bike ride.
 
 The **International Union for the Conservation of Nature (IUCN)** makes
-avaiable to the public a wonderful geospatial dataset covering protected
-areas around the world. It is quite impressive, but also computationally
-intensive to manipulate. Therefore, my first steps in processing this
-data were removing regions of the world not considered here as well as
-those protected land categories unrelated to
+avaiable to the public a wonderful geospatial dataset covering over
+33,000 protected areas in the United States alone. Covering everything
+from small local nature preserves and city parks to iconic National
+Parks, the data set is as extensive as it is impressive, but this level
+of detail also makes it computationally burdensome to work with.
+Therefore, my first steps in processing this data were removing regions
+of the world not considered here as well as those protected land
+categories unrelated to
 recreation.
 
 ``` r
@@ -389,13 +396,12 @@ wdpa = readOGR("raw_data/WDPA/WDPA_Apr2020_USA-shapefile-polygons.shp")
 #PAs in contiguous United States
 rmPA = c("US-AK","US-N/A;US-AK","US-N/A","US-HI","US-N/A;US-AK","US-N/A;US-CA","US-N/A;US-FL","US-N/A;US-FL;US-GA;US-SC","US-N/A;US-HI")
 wdpa_48 = wdpa[!wdpa$SUB_LOC %in% rmPA,]
-#Only terrestrial parks?
+#Only terrestrial parks
 wdpa_48_terr = wdpa_48[wdpa_48$MARINE==0,]
-writeSpatialShape(wdpa_48_terr, fn = "raw_data/WDPA/Derived/public_lands.shp", factor2char = TRUE)
 #Subset by PA type
-keepPAType = c("State Park","National Park","National Monument","State Recreation Area","Recreation Area","Historic State Park","Regional Park")
-wdpa_48_terr_pa = protectedAreas[protectedAreas$DESIG %in% keepPAType,]
-writeSpatialShape(protectedAreas_pa, fn = "raw_data/WDPA/Derived/public_lands_recreation.shp", factor2char = TRUE)
+paLevels = c("Ib","II","III","V","VI")
+wdpa_48_terr_pa = wdpa_48_terr[wdpa_48_terr$IUCN_CAT %in% paLevels,]
+writeSpatialShape(wdpa_48_terr_pa, fn = "raw_data/WDPA/Derived/public_lands_recreation.shp", factor2char = TRUE)
 ```
 
 After paring the data down, the intermediate product is saved to local
@@ -421,7 +427,7 @@ for(v in 1:length(vars)){
 
 ggplot(d) +
   theme_minimal() +
-  ggtitle("Proportion of Protected Land by U.S. County","logit scale") +
+  ggtitle("Proportion of Protected Land by U.S. County") +
   geom_sf(mapping=aes(fill=boot::logit(TOT_PA_AREA+0.001)), size=0.1) +
   scale_fill_viridis_c("logit(%)")
 ```
@@ -440,13 +446,13 @@ one of 16\* land cover categories including bare ground, medium
 intensity development, deciduous forests, cultivated land, and
 [more](https://www.mrlc.gov/data/legends/national-land-cover-database-2016-nlcd2016-legend).
 The NLCD data is very much integral to the design of Niche because it
-provides a powerful way of quantifying some of the most conspcious
+provides a powerful way of quantifying some of the most salient
 characterists of a location: what lies on top of the land. Maybe your
 ideal place to live has evergreen forests, small towns, and large
 expanses of grazing pasture. Perhaps it consists mainly of high
 intensity development, such as in a metro area, and with little or
 absent forest and agriculture land uses. The NLCD2016 data can capture
-represent these characteristics using the category combinations.
+represent these characteristics using combinations of these categories.
 
 As with other spatial data extractions, the goal was to iterate over
 counties in the data set and calculate the proportional representation
@@ -601,7 +607,37 @@ par(mfrow=c(2,2))
 for(v in 1:length(vars)){
   d[vars[v]] <- scores[[vars[v]]]
 }
+
+library(ggplotify)
+library(gridExtra)
 ```
+
+    ## 
+    ## Attaching package: 'gridExtra'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     combine
+
+``` r
+p1 <- ggplot(d) +
+  theme_minimal() +
+  ggtitle("Land Cover PC1") +
+  geom_sf(mapping=aes(fill=LandCover_PC1), size=0.1) +
+  scale_fill_viridis_c("")
+
+p2 <- ggplot(d) +
+  theme_minimal() +
+  ggtitle("Land Cover PC2") +
+  geom_sf(mapping=aes(fill=LandCover_PC2), size=0.1) +
+  scale_fill_viridis_c("")
+
+plt <- gridExtra::arrangeGrob(grobs = lapply(list(p1,p2), as.grob), ncol=1)
+grid::grid.newpage()
+grid::grid.draw(plt)
+```
+
+<img src="README_files/figure-gfm/ncld2-1.png" style="display: block; margin: auto;" />
 
 ## 5\. Making recommendations: cosine proximity
 
@@ -678,8 +714,12 @@ in \(n-\)dimensional space. The cosine of two vectors that share many
 properties will have an angle close to 0 and therefore a cosine value
 near 1. Conversely, disimilar counties will have lower scores because
 the angle of their edge will be larger. The formula for calculating
-cosine similarity is as follows:
-\[cos(\theta_{i,j}) = \frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}, \space\space i \neq\ j\]
+cosine similarity is as
+follows:
+
+\#\[cos(\theta_{i,j}) = \frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}, \space\space i \neq\ j\]
+
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}" text="cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}"/>
 
 The code for this calculation is given below along with an example for
 Cook County, Illinois, which includes the city of Chicago.
@@ -742,17 +782,27 @@ d[order(d$cosine_sim,decreasing = TRUE),c("name","cosine_sim")]
 
 The Top 10 recommendations for Cook County residents are presented here.
 Most similar to Cook County are Suffolk County, MA, a suburb of New York
-City, and Marion, ID, which contains the city of Indianapolis.
+City, and Marion County, IN, which contains the city of Indianapolis.
 
 ## Conclusion
 
-This was a brief sketch of the data and methods that go into **Niche: An
-Interface for Exploring Relocation Options**. If you would like to give
-a try, visit the most up-to-date version on my Shinyapps page
+This was a brief overview of the data and methods that went into
+**Niche: An Interface for Exploring Relocation Options**. If you would
+like to give a try, visit the most up-to-date version on my Shinyapps
+page
 [(https://ericvc.shinyapps.io/Niche/)](https://ericvc.shinyapps.io/Niche/)
-or clone the GitHub directory and run the app from your computer. Note,
-the `app.R` file contains code for initializing a Python virtual
-environment, which Niche requires in order to function. This code causes
-issues when executed on my local system. Commenting out those lines
-fixes the issue, but are otherwise required when running the hosted
-version of the program.
+or clone the GitHub directory and run the app from your computer with
+RStudio. Note, the `app.R` file contains code for initializing a Python
+virtual environment (using the `reticulate` package), which Niche
+requires in order to function completely. This code causes issues when
+executed on my local system. Commenting out the code fixes the issue,
+but are otherwise required when running the hosted version of the
+program. Some features will not be available without the ability to
+execute Python code.
+
+The purpose of Niche is to help guide users’ relocation research by
+translating their personal preferences and past experiences into a
+data-centric model in order to make recommendations. Some future plans
+for this tool include adding historical data that would allow users to
+find locations in the present that are similar to a location *and time*
+from the recent past (e.g., \(<=\) 20 years).
