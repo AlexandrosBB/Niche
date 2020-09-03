@@ -14,10 +14,10 @@ beauty of the region, and an vast matrix of open space and public lands
 that allow them to enjoy outdoor hobbies throughout the year.
 
 The idea for Niche came from wanting to help my parents explore their
-relocation options by taking into considertation what matters most to
+relocation options by taking into consideration what matters most to
 them about the place they live now. The name of this app is taken from a
 foundational concept in biology. While many definitions of a niche
-exist, from conceptural models to mathematical frameworks, virtually all
+exist, from verbal models to mathematical frameworks, virtually all
 definitions agree that one’s niche can be thought of as the set of
 environmental conditions necessary for an organism to thrive. While some
 species can only tolerate a narrow range of conditions (think
@@ -51,7 +51,7 @@ suggestions get in touch with me at ericvc2\[at\]gmail.
 
 ## 0\. Get County-level Boundary Data, the unit of this analysis
 
-Before getting started, I needed to aquire a geospatial dataset for all
+Before getting started, I needed to aquire a geospatial data set for all
 of the counties in the contiguous 48 U.S. states. Fortunately, `ggplot2`
 packages makes this easy with the `ggplot2::map_data()` function.
 However, I knew that I would eventually like to have the data as an ‘sf’
@@ -201,7 +201,7 @@ plot(bioclim, col=viridis::viridis(15))
 ```
 
 <img src="README_files/figure-gfm/bioclim-1.png" style="display: block; margin: auto;" />
-**Feature extraction using principal components analysis** The dataset
+**Feature extraction using principal components analysis** The data set
 includes 19 variables but deal mostly with characterizing temperature
 and precipitation patterns. As a result, we might expect that many of
 these variables will be highly correlated with one another, and would
@@ -212,11 +212,12 @@ Indeed, what I have chosen to do here is perform principal components
 analysis (PCA) on the climate data in order to collapse raw variables
 into a smaller number of axes. Before I did that, however, it was
 important to first normalize each variable by centering each around its
-mean and re-scaling the variance to 1 by dividing measuremnents by their
+mean and re-scaling the variance to 1 by dividing measurements by their
 standard deviation. After processing the data and performing the PCA, I
-found that approximately 85% of the total varition could was captured by
-the first four principal components, and chose to hold onto these axes
-of variation in order to characterize climatic variation in the dataset.
+found that approximately 85% of the total variation could was captured
+by the first four principal components, and chose to hold onto these
+axes of variation in order to characterize climatic variation in the
+data set.
 
 ``` r
 #normalize data to mean 0 and unit variance
@@ -293,7 +294,7 @@ d = cbind(d, bioclim_ex)
 
 The data for demographic, political, and economic variables come from a
 combination of two different county level data sources. The **MIT
-Election Lab** provides the ‘election-context-2018’ dataset via their
+Election Lab** provides the ‘election-context-2018’ data set via their
 [GitHub
 page](https://github.com/MEDSL/2018-elections-unoffical/blob/master/election-context-2018.csv),
 which includes information on the outcomes of state and national
@@ -378,7 +379,7 @@ having plenty of public lands nearby for a day hike, camping trip, or
 mountain bike ride.
 
 The **International Union for the Conservation of Nature (IUCN)** makes
-avaiable to the public a wonderful geospatial dataset covering over
+available to the public a wonderful geospatial data set covering over
 33,000 protected areas in the United States alone. Covering everything
 from small local nature preserves and city parks to iconic National
 Parks, the data set is as extensive as it is impressive, but this level
@@ -436,7 +437,7 @@ ggplot(d) +
 
 <img src="README_files/figure-gfm/plot_pa-1.png" style="display: block; margin: auto;" />
 
-## 4\. National Land Cover Dataset (2016)
+## 4\. National Land Cover data set (2016)
 
 The [National Land Cover
 Database](https://www.mrlc.gov/data/nlcd-2016-land-cover-conus), a high
@@ -447,7 +448,7 @@ intensity development, deciduous forests, cultivated land, and
 [more](https://www.mrlc.gov/data/legends/national-land-cover-database-2016-nlcd2016-legend).
 The NLCD data is very much integral to the design of Niche because it
 provides a powerful way of quantifying some of the most salient
-characterists of a location: what lies on top of the land. Maybe your
+characteristics of a location: what lies on top of the land. Maybe your
 ideal place to live has evergreen forests, small towns, and large
 expanses of grazing pasture. Perhaps it consists mainly of high
 intensity development, such as in a metro area, and with little or
@@ -573,8 +574,8 @@ The data from JSON files can be easily retrieved by iterating a custom
 ‘ingestion’ function over the directories for each county. As with the
 climate data, we want to consider if feature extraction with PCA might
 be appropriate here given the large number of land cover classes
-featured in the data set, the presenence or absence of which are likely
-to be correlated with one another.
+featured in the data set, the presence or absence of which are likely to
+be correlated with one another.
 
 ``` r
 dirs <- list.dirs("land_use/", recursive = TRUE)[-1]
@@ -706,7 +707,7 @@ attr(vals_t, "dimnames") <- NULL
 Cosine similarity is a common method used in recommender systems to
 identify similar entities (books, movies, etc.) on the basis of a vector
 of data features. In the previous block of code, we created and
-\(N \times M\) matrix where N is the number of features in the dataset
+\(N \times M\) matrix where N is the number of features in the data set
 and M is the number of counties. Cosine similarity works by calculating
 the angle \(\theta_{i,j}\) from the edges formed between the column
 vector of the focal county \(m_{i}\) and a comparison county \(m_{j}\)
