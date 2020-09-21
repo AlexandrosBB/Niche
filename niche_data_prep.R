@@ -21,19 +21,28 @@ library(jsonlite)
 
 # #--(0) Universal variables
 p4s_ll <- CRS("+proj=longlat")
+## Variable transformation function
+transform_data <- function(x) {
+  min_x = min(x, na.rm = TRUE)
+  max_x = max(x, na.rm = TRUE)
+  mean_x = mean(x, na.rm = TRUE)
+  y = (x - mean_x) / (max_x - min_x)
+  return(y)
+}
 
-# #--(1) Get county-level boundary data, the unit of analysis
-# 
-# county_df <- map_data("county") %>%
-#   mutate(region = tolower(region)) %>%
-#   mutate(subregion = tolower(subregion)) %>%
-#   mutate(subregion = str_replace(subregion, "st ", "saint ")) %>%
-#   mutate(subregion = str_replace(subregion, "ste ", "saint ")) %>%
-#   mutate(region = str_replace(region, "\\s", "_")) %>%
-#   mutate(subregion = str_replace(subregion, "\\s", "_")) %>%
-#   mutate(id = paste(subregion, region, sep=",_"))
-# coordinates(county_df) = c("long","lat") #converts to SpatialPointsDataFrame
-# 
+
+#--(1) Get county-level boundary data, the unit of analysis
+
+county_df <- map_data("county") %>%
+  mutate(region = tolower(region)) %>%
+  mutate(subregion = tolower(subregion)) %>%
+  mutate(subregion = str_replace(subregion, "st ", "saint ")) %>%
+  mutate(subregion = str_replace(subregion, "ste ", "saint ")) %>%
+  mutate(region = str_replace(region, "\\s", "_")) %>%
+  mutate(subregion = str_replace(subregion, "\\s", "_")) %>%
+  mutate(id = paste(subregion, region, sep=",_"))
+coordinates(county_df) = c("long","lat") #converts to SpatialPointsDataFrame
+
 # #convert to SpatialPolygonsDataFrame
 # #https://stackoverflow.com/questions/21759134/convert-spatialpointsdataframe-to-spatialpolygons-in-r
 # points2polygons <- function(df,data) {
@@ -61,10 +70,10 @@ p4s_ll <- CRS("+proj=longlat")
 #   do.call("rbind", .)
 # counties$county = locs[,1]
 # counties$state = locs[,2]
-# 
+#  
 # writePolyShape(counties, "raw_data/shape/counties.shp")
-counties <- readOGR("raw_data/shape/counties.shp")
 d <- d2 <- st_read("raw_data/shape/counties.shp", quiet = TRUE)
+counties <- as(d,"Spatial")
 proj4string(counties) <- st_crs(d) <- p4s_ll
 d2$geometry <- NULL
 #
@@ -95,7 +104,7 @@ d2$geometry <- NULL
 # BIO18 = Precipitation of Warmest Quarter
 # BIO19 = Precipitation of Coldest Quarter
 #
-bclimFiles = list.files("raw_data/wc5/", pattern = "bio", full.names = TRUE)[-1]
+bclimFiles = list.files("raw_data/wc2-5/", pattern = "bio", full.names = TRUE)[-1]
 bclimFiles = bclimFiles[str_detect(bclimFiles, "bil")==TRUE]
 orderFiles = str_extract_all(bclimFiles, pattern="[[:digit:]]+") %>%
   do.call("rbind",.) %>%
@@ -109,21 +118,24 @@ ex2 = raster::extract(bioclim[[c(1,12,15)]], counties, fun="mean") %>%
   round(2)
 names(ex2) = c("Mean_Temp_F","Precipitation_mm","Precip_Variation")
 d2 = cbind(d2, ex2)
-#rescale raster data to mean 0 and unit variance
-for(m in 1:nlayers(bioclim)){
-  x = bioclim[[m]][]
-  mu = mean(x, na.rm=TRUE)
-  sigma = sd(x, na.rm=TRUE)
-  bioclim[[m]][] = (x-mu) / sigma
-}
 
 plot(bioclim, col=viridis::viridis(15))
 
-#Use principal components to do feature extraction
+## Use principal components to do feature extraction
+#normalize data to mean 0 and unit variance
+normalize <- function(x){
+  mu <- mean(x, na.rm=TRUE)
+  sigma <- sd(x, na.rm=TRUE)
+  y <- (x-mu)/sigma
+  return(y)
+}
+
 i = 1:19
 vals = getValues(bioclim[[i]])
-completeObs = complete.cases(vals)
-pc = princomp(vals[completeObs,], scores = TRUE, cor = TRUE)
+vals2 <- apply(vals, 2, normalize)
+completeObs = complete.cases(vals2)
+
+pc = princomp(vals2[completeObs,], scores = TRUE, cor = TRUE)
 
 pcPredict = predict(pc, vals)
 r1 = r2 = r3 = raster(bioclim)
@@ -155,16 +167,15 @@ d = cbind(d, bioclim_ex)
 # wdpa_48 = wdpa[!wdpa$SUB_LOC %in% rmPA,]
 # #Only terrestrial parks?
 # wdpa_48_terr = wdpa_48[wdpa_48$MARINE==0,]
-# writeSpatialShape(wdpa_48_terr, fn = "raw_data/WDPA/Derived/public_lands.shp", factor2char = TRUE)
 # #Subset by PA type
-# keepPAType = c("State Park","National Park","National Monument","State Recreation Area","Recreation Area","Historic State Park","Regional Park")
-# wdpa_48_terr_pa = protectedAreas[protectedAreas$DESIG %in% keepPAType,]
+# paLevels = c("Ib","II","III","V","VI")
+# wdpa_48_cat = wdpa[!wdpa$IUCN_CAT %in% rmPA,]
 # writeSpatialShape(protectedAreas_pa, fn = "raw_data/WDPA/Derived/public_lands_recreation.shp", factor2char = TRUE)
 #
 protectedAreas = readOGR("raw_data/WDPA/Derived/public_lands_recreation.shp",
                          p4s = proj4string(counties)
 )
-paLevels = c("Ia","Ib","II","III","IV","V","VI")
+paLevels = c("Ib","II","III","V","VI")
 
 #Ia Strict Nature Reserve
 #Ib Wilderness Area

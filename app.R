@@ -71,14 +71,16 @@ label_county = HTML('<p style="color:black;margin-left:0px;text-align:center">Co
 label_state = HTML('<p style="color:black;margin-left:0px;text-align:center">State</p>')
 
 ## CSS Customization
-css <- HTML(" body {
-    background-color:#F2F2F2;
-    margin-right:5%;
-    margin-left:10%;
-}")
+css <- HTML("
+  body {
+      background-color:#F2F2F2;
+      margin-right:5%;
+      margin-left:10%;
+  }
+")
 
 
-## Create Python virtual environment
+# Create Python virtual environment
 reticulate::virtualenv_create(envname = "python_environment", python = "python3")
 reticulate::virtualenv_install(envname = "python_environment", packages = "geopy", ignore_installed = TRUE)
 reticulate::use_virtualenv("python_environment", required = TRUE)
@@ -96,10 +98,9 @@ ui <-
                     h1(
                       HTML("<u>Niche: An Interface for Exploring Relocation Options</u>")
                     ),
-                    br(),
                     h4(
                       HTML(
-                        "<p style='font-color:#f2f2f2;font-size:25px'>Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers how important each of these variables are to you when making its recommendations. Try it out! You may be surprised where a perfect new home awaits.</p>"
+                        "<p style='font-color:#f2f2f2;font-size:22px'>Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers how important each of these variables are to you when making its recommendations. Try it out! You may be surprised where a perfect new home awaits.</p>"
                       )
                     ))),
     br(),
@@ -270,7 +271,7 @@ ui <-
         br(),
         h5(
           HTML(
-            "<p style='margin-left:35px;font-size:18px;'>An interactive map of your results may take some time to load. Please be patient! It will appear to the right when ready.</p>"
+            "<p style='margin-left:35px;font-size:18px;'>The interactive map of your results may take some time to load. Please be patient! It will appear to the right when ready.</p>"
           )
         ),
         h5(
@@ -287,6 +288,7 @@ ui <-
           tags$style(".shiny-output-error{color:blue; font-size: 17px}")
         )),
         fluidRow(plotlyOutput("map", height = "550px")),
+        br(),
         h4(
           HTML(
             "<p style='text-align:center'>Counties with scores closer to 1 are more similar to your location.</p>"
@@ -313,7 +315,7 @@ ui <-
         dataTableOutput("table", width = "100%"),
         h5(
           HTML(
-            "<p><a href='https://github.com/ericvc/Niche'>Click here to view my source code</a></p>"
+            "<p><a href='https://github.com/ericvc/Niche'>Click here to view the source code</a></p>"
           )
         ),
         h5(
@@ -609,7 +611,7 @@ server = function(input, output, session) {
     d_out = dx %>%
       filter(State == input$state) %>%
       filter(County == input$county)
-    d_out$Score = 0.00
+    d_out$Score = 1.00
     zillowQuery <-
       sprintf("%s-county,-%s",
               tolower(d_out$County),

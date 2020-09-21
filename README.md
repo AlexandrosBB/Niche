@@ -638,7 +638,7 @@ grid::grid.newpage()
 grid::grid.draw(plt)
 ```
 
-<img src="README_files/figure-gfm/ncld2-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/nlcd2-1.png" style="display: block; margin: auto;" />
 
 ## 5\. Making recommendations: cosine proximity
 
@@ -708,17 +708,16 @@ Cosine similarity is a common method used in recommender systems to
 identify similar entities (books, movies, etc.) on the basis of a vector
 of data features. In the previous block of code, we created and
 \(N \times M\) matrix where N is the number of features in the data set
-and M is the number of counties. Cosine similarity works by calculating
-the angle \(\theta_{i,j}\) from the edges formed between the column
-vector of the focal county \(m_{i}\) and a comparison county \(m_{j}\)
-in \(n-\)dimensional space. The cosine of two vectors that share many
-properties will have an angle close to 0 and therefore a cosine value
-near 1. Conversely, dissimilar counties will have lower scores because
-the angle of their edge will be larger. The formula for calculating
-cosine similarity is as
-follows:
+and M is the number of counties. The cosine similarity is calculated by
+determining the angle \(\theta_{i,j}\) from the edges formed between the
+column vector of the focal county \(m_{i}\) and a comparison county
+\(m_{j}\) in \(n-\)dimensional space. In practice, the cosine of two
+vectors that share many properties will have an angle close to 0 and
+therefore a cosine value near 1. Conversely, dissimilar counties will
+have lower scores because the angle of their edge will be larger. The
+formula for calculating cosine similarity is given from:
 
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}" text="cos(\theta_{i,j})=\frac{\sum^N_{n=1}{m_{i,n}\times m_{j,n}}}{\sum^N_{n=1}{\sqrt{m^2_{i,n}}\sqrt{m^2_{j,n}}}}"/>
+![](cos_similarity_eqn.gif)
 
 The code for this calculation is given below along with an example for
 Cook County, IL, which includes the city of Chicago.
