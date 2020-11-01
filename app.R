@@ -80,9 +80,10 @@ css <- HTML("
 ")
 
 
-# Create Python virtual environment
+## Create Python virtual environment
 reticulate::virtualenv_create(envname = "python_environment", python = "python3")
-reticulate::virtualenv_install(envname = "python_environment", packages = "geopy", ignore_installed = TRUE)
+reticulate::virtualenv_remove(envname = "python_environment", packages = "pip")
+reticulate::virtualenv_install(envname = "python_environment", packages = c("pip==20.2.1","geopy"), ignore_installed = TRUE)
 reticulate::use_virtualenv("python_environment", required = TRUE)
 reticulate::source_python("Python/city_coords.py")
 
@@ -100,7 +101,7 @@ ui <-
                     ),
                     h4(
                       HTML(
-                        "<p style='font-color:#f2f2f2;font-size:22px'>Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers how important each of these variables are to you when making its recommendations. Try it out! You may be surprised where a perfect new home awaits.</p>"
+                          "<p style='font-color:#f2f2f2;font-size:22px'>Whether you are looking for familiar surroundings or want to experience something new, Niche can help you smartly explore your relocation options. The program aggregates numerous sources of county-level data covering everything from the climate, land development, politics, cost of living, and demographics. Niche considers how important each of these variables are to you when making its recommendations. Try it out! You may be surprised where a perfect new home awaits.</p>"
                       )
                     ))),
     br(),
@@ -666,7 +667,7 @@ server = function(input, output, session) {
     scrollX = TRUE,
     scrollCollapse = TRUE,
     lengthMenu = list(c(10, 20, 50), c('10', '20', '50')),
-    pageLength = 10
+    pageLength = 20
   ))
   output$focal_table <- DT::renderDataTable({
     focal_table()

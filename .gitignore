@@ -1,12 +1,15 @@
 raw_data/
 .git/
 .Rhistory
-niche.Rmd
 test.csv
-README.md
+README.Rmd
 new_table.rds
 land_use*
 land_use
 *.gz
 rsconnect/
 niche_data
+.gitignore
+niche_files/
+niche.html
+wc10/
